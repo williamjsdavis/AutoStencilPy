@@ -18,6 +18,15 @@ class RationalMatrix:
         else:
             out = self.value + other
         return RationalMatrix(out)
+    def __sub__(self, other):
+        T = type(other)
+        if T is RationalMatrix:
+            out = self.value - other.value
+        elif T is float:
+            out = self.value - _Fraction(other)
+        else:
+            out = self.value - other
+        return RationalMatrix(out)
     def __radd__(self, other):
         T = type(other)
         if T is int or T is _Fraction or T is RationalMatrix:
@@ -98,6 +107,26 @@ class RationalVector:
                 out = self.value + other.value
             else:
                 out = self.value + other
+            if _utils.isVector(out):
+                outRa = RationalVector(out)
+            elif _utils.isSquare(out):
+                outRa = RationalMatrix(out)
+            else:
+                raise ValueError('Dimension mismatch.')
+        return outRa
+    def __sub__(self, other):
+        T = type(other)
+        if T is int or T is _Fraction:
+            out = self.value - other
+            outRa = RationalVector(out)
+        elif T is float:
+            out = self.value - _Fraction(other)
+            outRa = RationalVector(out)
+        else:
+            if T is RationalVector:
+                out = self.value - other.value
+            else:
+                out = self.value - other
             if _utils.isVector(out):
                 outRa = RationalVector(out)
             elif _utils.isSquare(out):

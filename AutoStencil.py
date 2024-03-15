@@ -133,11 +133,22 @@ def computeStencil(C, d):
     N = len(C)
     parseStencilInputs(N, d)
     
+    # Calculate result
     A = _vectorMultiplicand(d, N)
     M = _matrixMultiplier(C, N)
     ratA = _ra.RationalVector(A)
     ratM = _ra.RationalMatrix(M)
-    res = _ra.inv(ratM) @ ratA
+    ratM_inv =_ra.inv(ratM)
+    res = ratM_inv @ ratA
+    
+    # Check result
+    print(ratM)
+    print(ratM_inv)
+    print(ratA)
+    print(res)
+    print('check')
+    print((ratM @ res) - ratA)
+    
     newNumerators, lcmDenom = _integerRepresentation(res)
     return newNumerators, lcmDenom
 
