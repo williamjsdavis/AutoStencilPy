@@ -30,13 +30,16 @@ def parseStringInputs(stencilString, dimensionString):
     else:
         codeString = ''
     return latexString, codeString
+
 def _makeStencilInts(inString):
     splitString = inString.split(',')
     nums = list(map(lambda x: int(float(x)), splitString))
     nums = sorted(list(set(nums)))
     return _np.array(nums)
+
 def _makeDimInt(inString):
     return int(float(inString))
+
 def stencilCode(C, d, functionName, functionVar, stepVar):
     # Calculate stencil
     newNumerators, lcmDenom = computeStencil(C, d)
@@ -74,6 +77,7 @@ def stencilCode(C, d, functionName, functionVar, stepVar):
     fullExp = lhsString + nString + "/" + dString
     
     return fullExp
+
 def stencilLatex(C, d, functionName, functionVar, stepVar):
     # Calculate stencil
     newNumerators, lcmDenom = computeStencil(C, d)
@@ -113,11 +117,21 @@ def stencilLatex(C, d, functionName, functionVar, stepVar):
     fullExp = lhsString + "\\approx \\frac" + nString + dString
     
     return fullExp
-def computeStencil(C, d):
-    N = len(C)
+
+def parseStencilInputs(N, d):
     if d >= N:
         raise ValueError(
-            "Derivative order must be less than the number of points in the stencil.")
+            "Derivative order must be less than the number of points in the stencil."
+        )
+    if not isinstance(d,int):
+        raise ValueError(
+            "Derivative order must be an integer."
+        )
+    return None
+
+def computeStencil(C, d):
+    N = len(C)
+    parseStencilInputs(N, d)
     
     A = _vectorMultiplicand(d, N)
     M = _matrixMultiplier(C, N)
@@ -126,11 +140,13 @@ def computeStencil(C, d):
     res = _ra.inv(ratM) @ ratA
     newNumerators, lcmDenom = _integerRepresentation(res)
     return newNumerators, lcmDenom
+
 def _vectorMultiplicand(d, N):
     c = _np.zeros((N, 1))
     c = c.astype(int)
     c[d] = _factorial(d)
     return c
+
 def _matrixMultiplier(C, N):
     M = _np.zeros((N, N))
     M = M.astype(int)
@@ -138,6 +154,7 @@ def _matrixMultiplier(C, N):
     for i in exponentRange:
         M[:,i] = [C[i]**x for x in exponentRange]
     return M
+
 def _integerRepresentation(resultArray):
     numer = _np.array(list(
         map(lambda x: x[0].numerator, resultArray.value)))
@@ -147,8 +164,10 @@ def _integerRepresentation(resultArray):
     numFactor = _np.array(list(map(lambda x: lcmDenom // x, denom)))
     newNumerators = numer * numFactor
     return newNumerators, lcmDenom
+
 def _lcm2(a, b):
     return abs(a*b) // _gcd(a, b)
+
 def _lcmRec(intList):
     if len(intList) == 2:
         return _lcm2(intList[0], intList[1])
