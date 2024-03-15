@@ -140,14 +140,11 @@ def computeStencil(C, d):
     ratM = _ra.RationalMatrix(M)
     ratM_inv =_ra.inv(ratM)
     res = ratM_inv @ ratA
+    residual = (ratM @ res) - ratA
     
     # Check result
-    print(ratM)
-    print(ratM_inv)
-    print(ratA)
-    print(res)
-    print('check')
-    print((ratM @ res) - ratA)
+    if residual.value.sum() != 0:
+        raise ValueError("Not able to find solution.")
     
     newNumerators, lcmDenom = _integerRepresentation(res)
     return newNumerators, lcmDenom
